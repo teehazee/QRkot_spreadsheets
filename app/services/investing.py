@@ -32,16 +32,16 @@ async def close_obj(obj: BaseModel) -> BaseModel:
     return obj
 
 
-async def calculation(obj_in, obj): 
-    amount_money_have = obj_in.full_amount - obj_in.invested_amount 
-    amount_money_need = obj.full_amount - obj.invested_amount 
-    if amount_money_have == amount_money_need: 
-        obj_in = await close_obj(obj_in) 
-        obj = await close_obj(obj) 
-    elif amount_money_have > amount_money_need: 
-        obj_in.invested_amount += amount_money_need 
-        obj = await close_obj(obj) 
-    else: 
-        obj.invested_amount += amount_money_have 
-        obj_in = await close_obj(obj_in) 
+async def calculation(obj_in, obj):
+    amount_money_have = obj_in.full_amount - obj_in.invested_amount
+    amount_money_need = obj.full_amount - obj.invested_amount
+    if amount_money_have == amount_money_need:
+        obj_in = await close_obj(obj_in)
+        obj = await close_obj(obj)
+    elif amount_money_have > amount_money_need:
+        obj_in.invested_amount += amount_money_need
+        obj = await close_obj(obj)
+    else:
+        obj.invested_amount += amount_money_have
+        obj_in = await close_obj(obj_in)
     return obj_in, obj
