@@ -92,7 +92,7 @@ async def delete_charity_project(
         charity_project_id: int,
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Удаляет проект. Нельзя удалить активный проект, 
+    """Удаляет проект. Нельзя удалить активный проект,
         его можно только закрыть.
         Только для суперюзеров.
     """
