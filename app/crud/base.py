@@ -1,21 +1,18 @@
-from typing import Generic, List, Optional, Type, TypeVar
+from typing import Dict, List, Optional, TypeVar
 
-from pydantic import BaseModel
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import Base
-from app.models import User
 
 
 ModelType = TypeVar('ModelType', bound=Base)
-CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
-UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)
 
 
-class CRUDBase(Generic[ModelType, CreateSchemaType]):
+class CRUDBase:
 
-    def __init__(self, model: Type[ModelType]):
+    def __init__(self, model):
         self.model = model
 
     async def get(
@@ -38,16 +35,76 @@ class CRUDBase(Generic[ModelType, CreateSchemaType]):
         return db_objs.scalars().all()
 
     async def create(
-            self,
-            obj_in: CreateSchemaType,
-            session: AsyncSession,
-            user: Optional[User] = None
+        self,
+        obj_in,
+        session: AsyncSession,
+        user: Optional[int] = None,
+        commit: bool = True
     ) -> ModelType:
         obj_in_data = obj_in.dict()
         if user is not None:
             obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
+        if commit:
+            await session.commit()
+            await session.refresh(db_obj)
+        return db_obj
+
+    async def get_investment_active(
+        self,
+        session: AsyncSession,
+        obj
+    ) -> ModelType:
+        db_obj = await session.execute(
+            select(obj).where(
+                obj.fully_invested == 0
+            )
+        )
+        return db_obj.scalars().all()
+
+    async def update(
+            self,
+            db_obj,
+            obj_in,
+            session: AsyncSession,
+    ) -> ModelType:
+        obj_data = jsonable_encoder(db_obj)
+        update_data = obj_in.dict(exclude_unset=True)
+        for field in obj_data:
+            if field in update_data:
+                setattr(db_obj, field, update_data[field])
+        session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)
         return db_obj
+
+    async def remove(
+            self,
+            db_obj,
+            session: AsyncSession
+    ) -> ModelType:
+        await session.delete(db_obj)
+        await session.commit()
+        return db_obj
+
+    async def get_not_invested(
+            self,
+            session: AsyncSession
+    ) -> List[ModelType]:
+        objects = await session.execute(
+            select(self.model).where(
+                self.model.fully_invested == 0
+            ).order_by(self.model.create_date)
+        )
+        return objects.scalars().all()
+
+    async def get_fully_invested(
+            self,
+            session: AsyncSession,
+    ) -> List[Dict[str, str]]:
+        objects = await session.execute(
+            select([self.model],).where(
+                self.model.fully_invested is True)
+        )
+        return objects.scalars().all()
