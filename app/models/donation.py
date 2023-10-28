@@ -4,15 +4,12 @@ from app.models.base import BaseModel
 
 
 class Donation(BaseModel):
-    user_id = Column(Integer, ForeignKey(
-        'user.id',
-        name='fk_donation_user_id_user'
-    ))
-    comment = Column(Text)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    comment = Column(Text, nullable=True)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
-            f'user_id: {self.user_id}, '
-            f'comment: {self.comment[:8]} , '
-            f'{super().__repr__()}'
+            f'{super().__repr__()},'
+            f'user_id={self.user_id},'
+            f'comment={self.comment}'
         )

@@ -63,4 +63,4 @@ async def get_my_donations(
         user: User = Depends(current_user),
 ):
     """Получить список моих пожертвований."""
-    return await donation_crud.get_by_user(session=session, user=user)
+    return await donation_crud.get_user_donations(session=session, user=user)

@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, TypeVar
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.models import User
 
 from app.core.db import Base
 
@@ -38,7 +39,7 @@ class CRUDBase:
         self,
         obj_in,
         session: AsyncSession,
-        user: Optional[int] = None,
+        user: Optional[User] = None,
         commit: bool = True
     ) -> ModelType:
         obj_in_data = obj_in.dict()
