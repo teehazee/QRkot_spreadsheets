@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Any, Dict, List, Tuple
 
 from aiogoogle import Aiogoogle
-from pydantic import ValidationError
 
 from app.core.config import settings
 from app.core.constants import (
