@@ -7,7 +7,7 @@ from app.crud.base import CRUDBase
 from app.models.charity_project import CharityProject
 
 
-class CRUDCharityProject(CRUDBase):
+class CrudCharityProject(CRUDBase):
 
     @staticmethod
     async def get_charity_project_name(
@@ -22,4 +22,4 @@ class CRUDCharityProject(CRUDBase):
         return db_charity_project.scalars().first()
 
 
-charity_project_crud = CRUDCharityProject(CharityProject)
+charity_project_crud = CrudCharityProject(CharityProject)

@@ -7,7 +7,7 @@ from app.crud.base import CRUDBase
 from app.models import Donation, User
 
 
-class CRUDReservation(CRUDBase):
+class CRUDDonation(CRUDBase):
 
     async def get_user_donations(
         self, session: AsyncSession, user: User
@@ -21,4 +21,4 @@ class CRUDReservation(CRUDBase):
         ).scalars().all()
 
 
-donation_crud = CRUDReservation(Donation)
+donation_crud = CRUDDonation(Donation)

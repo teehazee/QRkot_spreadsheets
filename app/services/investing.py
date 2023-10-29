@@ -1,13 +1,14 @@
 from datetime import datetime
 from typing import List
 
-from app.models.base import BaseModel
+from app.models.base import CharityDonationModel
 
 
 def investation(
-        target: BaseModel,
-        sources: List[BaseModel]
-) -> List[BaseModel]:
+    target: CharityDonationModel,
+    sources: List[CharityDonationModel]
+) -> List[CharityDonationModel]:
+    """Функция инвестирования."""
     results: list = []
     if not target.invested_amount:
         target.invested_amount = 0

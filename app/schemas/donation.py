@@ -1,26 +1,26 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
-from pydantic.types import PositiveInt
+from pydantic import BaseModel, Extra, PositiveInt
 
 
 class DonationCreate(BaseModel):
-    comment: Optional[str]
     full_amount: PositiveInt
+    comment: Optional[str]
+
+    class Config:
+        extra = Extra.forbid
 
 
 class DonationView(DonationCreate):
-    user_id: Optional[int]
-    invested_amount: Optional[int]
-    fully_invested: Optional[bool]
-    close_date: Optional[datetime]
+    id: int
+    create_date: datetime
 
     class Config:
         orm_mode = True
 
 
-class DonationDB(DonationCreate):
+class DonationDB(DonationView):
     user_id: Optional[int]
     invested_amount: int = 0
     fully_invested: bool = False

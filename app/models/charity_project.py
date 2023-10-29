@@ -1,10 +1,12 @@
 from sqlalchemy import CheckConstraint, Column, String, Text
 from sqlalchemy.orm import declared_attr
 
-from app.models.base import BaseModel
+from app.models.base import CharityDonationModel
 
 
-class CharityProject(BaseModel):
+class CharityProject(CharityDonationModel):
+    """Модель Благотворительного проекта."""
+
     @declared_attr
     def __table_args__(self) -> tuple:
         return (

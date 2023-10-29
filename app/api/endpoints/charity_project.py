@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import (
-    check_project_exist,
-    check_project_closed,
-    check_project_amount_less_than_invested,
-    check_project_name,
+    check_charity_project_exists,
+    check_closed,
+    check_full_amount_is_less_than_invested,
+    check_charity_project_name_duplicate,
     check_project_is_invested,
 )
 from app.core.db import get_async_session
@@ -20,7 +20,6 @@ from app.schemas.charity_project import (
     CharityProjectDB,
     CharityProjectUpdate
 )
-
 from app.services.investing import investation
 
 
@@ -37,7 +36,10 @@ async def create_new_charity_project(
         charity_project: CharityProjectCreate,
         session: AsyncSession = Depends(get_async_session),
 ):
-    await check_project_name(
+    """Создает благотворительный проект.
+        Только для суперюзеров.
+    """
+    await check_charity_project_name_duplicate(
         charity_project.name, session
     )
     new_project = await charity_project_crud.create(
@@ -60,7 +62,8 @@ async def create_new_charity_project(
 @router.get(
     '/',
     response_model=List[CharityProjectDB],
-    response_model_exclude_none=True
+    response_model_exclude_none=True,
+    description='Получает список всех проектов.'
 )
 async def get_all_charity_projects(
     session: AsyncSession = Depends(get_async_session),
@@ -78,13 +81,16 @@ async def partially_update_charity_project(
         project_in: CharityProjectUpdate,
         session: AsyncSession = Depends(get_async_session),
 ):
+    """Закрытый проект нельзя редактировать.
+        Только для суперюзеров.
+    """
     project_by_id = await charity_project_crud.get(project_id, session)
-    check_project_exist(project_by_id)
-    check_project_closed(project_by_id)
-    check_project_amount_less_than_invested(
+    check_charity_project_exists(project_by_id)
+    check_closed(project_by_id)
+    check_full_amount_is_less_than_invested(
         project_in.full_amount, project_by_id.invested_amount
     )
-    await check_project_name(project_in.name, session)
+    await check_charity_project_name_duplicate(project_in.name, session)
     return await charity_project_crud.update(
         project_by_id, project_in, session
     )
@@ -99,6 +105,10 @@ async def remove_charity_project(
         project_id: int,
         session: AsyncSession = Depends(get_async_session),
 ):
+    """Удаляет проект. Нельзя удалить активный проект,
+        его можно только закрыть.
+        Только для суперюзеров.
+    """
     charity_project = await charity_project_crud.get(project_id, session)
     check_project_is_invested(charity_project)
     return await charity_project_crud.remove(charity_project, session)

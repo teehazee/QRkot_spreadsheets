@@ -3,28 +3,25 @@ from typing import Dict, List, Optional, TypeVar
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import User
 
 from app.core.db import Base
+from app.models import User
 
 
 ModelType = TypeVar('ModelType', bound=Base)
 
 
 class CRUDBase:
-
-    def __init__(self, model):
+    def __init__(self, model) -> None:
         self.model = model
 
     async def get(
             self,
             obj_id: int,
-            session: AsyncSession,
+            session: AsyncSession
     ) -> Optional[ModelType]:
         db_obj = await session.execute(
-            select(self.model).where(
-                self.model.id == obj_id
-            )
+            select(self.model).where(self.model.id == obj_id)
         )
         return db_obj.scalars().first()
 
@@ -36,11 +33,11 @@ class CRUDBase:
         return db_objs.scalars().all()
 
     async def create(
-        self,
-        obj_in,
-        session: AsyncSession,
-        user: Optional[User] = None,
-        commit_choke: bool = True
+            self,
+            obj_in,
+            session: AsyncSession,
+            user: Optional[User] = None,
+            commit_choke: bool = True,
     ) -> ModelType:
         obj_in_data = obj_in.dict()
         if user is not None:
@@ -51,18 +48,6 @@ class CRUDBase:
             await session.commit()
             await session.refresh(db_obj)
         return db_obj
-
-    async def get_investment_active(
-        self,
-        session: AsyncSession,
-        obj
-    ) -> ModelType:
-        db_obj = await session.execute(
-            select(obj).where(
-                obj.fully_invested == 0
-            )
-        )
-        return db_obj.scalars().all()
 
     async def update(
             self,
