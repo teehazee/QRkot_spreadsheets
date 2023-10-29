@@ -91,6 +91,6 @@ class CRUDBase:
     ) -> List[Dict[str, str]]:
         objects = await session.execute(
             select([self.model],).where(
-                self.model.fully_invested is True)
+                self.model.fully_invested == 1)
         )
         return objects.scalars().all()
