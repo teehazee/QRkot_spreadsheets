@@ -1,15 +1,22 @@
-from sqlalchemy import Column, String, Text
+from sqlalchemy import CheckConstraint, Column, String, Text
+from sqlalchemy.orm import declared_attr
 
 from app.models.base import BaseModel
 
 
 class CharityProject(BaseModel):
-    name = Column(String(100), unique=True, nullable=False)
-    description = Column(Text)
-
-    def __repr__(self):
+    @declared_attr
+    def __table_args__(self) -> tuple:
         return (
-            f'name: {self.name[:16]}, '
-            f'description: {self.description[:16]}, '
-            f'{super().__repr__()}'
+            *super().__table_args__, CheckConstraint('length(name) > 0'),
+            CheckConstraint('length(description) > 0'))
+
+    name = Column(String(100), nullable=False, unique=True)
+    description = Column(Text, nullable=False)
+
+    def __repr__(self) -> str:
+        return (
+            f'{super().__repr__()},'
+            f'name={self.name},'
+            f'description={self.description}'
         )

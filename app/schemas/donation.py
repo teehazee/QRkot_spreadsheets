@@ -10,16 +10,18 @@ class DonationCreate(BaseModel):
     full_amount: PositiveInt
 
 
-class DonationDB(DonationCreate):
-    id: int
-    create_date: Optional[datetime]
+class DonationView(DonationCreate):
+    user_id: Optional[int]
+    invested_amount: Optional[int]
+    fully_invested: Optional[bool]
+    close_date: Optional[datetime]
 
     class Config:
         orm_mode = True
 
 
-class DonationDBSuperUser(DonationDB):
+class DonationDB(DonationCreate):
     user_id: Optional[int]
-    invested_amount: Optional[int]
-    fully_invested: Optional[bool]
-    close_date: Optional[datetime]
+    invested_amount: int = 0
+    fully_invested: bool = False
+    close_date: Optional[datetime] = None

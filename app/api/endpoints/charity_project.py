@@ -71,7 +71,7 @@ async def get_all_charity_projects(
 @router.patch(
     '/{project_id}',
     response_model=CharityProjectDB,
-    dependencies=[Depends(current_superuser)],
+    dependencies=[Depends(current_superuser)]
 )
 async def partially_update_charity_project(
         project_id: int,

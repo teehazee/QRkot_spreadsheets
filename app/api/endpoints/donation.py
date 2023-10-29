@@ -7,7 +7,7 @@ from app.crud.donation import donation_crud
 from app.crud.charity_project import charity_project_crud
 from app.models import User
 from app.schemas.donation import (DonationCreate, DonationDB,
-                                  DonationDBSuperUser)
+                                  DonationView)
 from app.services.investing import investation
 
 
@@ -16,22 +16,28 @@ router = APIRouter()
 
 @router.post(
     '/',
-    response_model=DonationDB,
+    response_model=DonationView,
+    dependencies=[Depends(current_user)],
     response_model_exclude_none=True
 )
 async def create_donation(
     donation: DonationCreate,
-    user: User = Depends(current_user),
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_user)
 ):
     new_donation = await donation_crud.create(
-        donation, session, False, user
+        donation,
+        session,
+        user,
+        commit_choke=False
     )
-    project_invest = await charity_project_crud.get_open_objects(
-        session
+    session.add_all(
+        [*investation(
+            new_donation,
+            await charity_project_crud.get_not_invested(session)
+        ), new_donation
+        ]
     )
-    invested_objects = investation(new_donation, project_invest)
-    session.add_all(invested_objects)
     await session.commit()
     await session.refresh(new_donation)
     return new_donation
@@ -39,7 +45,7 @@ async def create_donation(
 
 @router.get(
     '/',
-    response_model=list[DonationDBSuperUser],
+    response_model=list[DonationView],
     response_model_exclude_none=True,
     dependencies=[Depends(current_superuser)],
 )
