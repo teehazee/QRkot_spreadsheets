@@ -32,7 +32,7 @@ SPREADSHEET_BODY = dict(
 )
 
 SPREADSHEET_ERROR = (
-    'Невозможно создать таблицу размера {rows} x {columns}. '
-    f'Число строк должно быть меньше {ROW_COUNT}, число '
-    f'Число колонок должно быть меньше {COLUMN_COUNT}.'
+    'Передаваемые значения превышают созданные границы таблицы! '
+    'Создано строк: {rows_create}, столбцов {columns_create}. '
+    'Граница строк {rows_limit}, граница столбцов {columns_limit}.'
 )

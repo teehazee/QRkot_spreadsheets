@@ -88,11 +88,12 @@ async def spreadsheets_update_value(
     rows = len(table_values)
     columns = max(map(len, table_values))
     if rows > ROW_COUNT or columns > COLUMN_COUNT:
-        raise ValidationError(
-            SPREADSHEET_ERROR.format(
-                rows=rows, columns=columns
-            )
-        )
+        raise ValueError(SPREADSHEET_ERROR.format(
+            rows_create=ROW_COUNT,
+            columns_create=COLUMN_COUNT,
+            rows_limit=rows,
+            columns_limit=columns
+        ))
 
     await wrapper_services.as_service_account(
         service.spreadsheets.values.update(
