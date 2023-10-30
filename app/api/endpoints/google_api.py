@@ -25,7 +25,7 @@ router = APIRouter()
 async def get_report(
     session: AsyncSession = Depends(get_async_session),
     wrapper_services: Aiogoogle = Depends(get_service)
-) -> Dict[str, Any]:
+) -> Dict[str, str]:
     """Создание отчёта в Google таблицах.
        В отчёте: закрытые проекты, отсортированные по времени, затраченному на
        сборы средств.
@@ -34,9 +34,9 @@ async def get_report(
     projects = await charity_project_crud.get_fully_invested(
         session
     )
+    spreadsheet_id, spreadsheet_url = await spreadsheets_create(wrapper_services)
+    await set_user_permissions(spreadsheet_id, wrapper_services)
     try:
-        spreadsheet_id, spreadsheet_url = await spreadsheets_create(wrapper_services)
-        await set_user_permissions(spreadsheet_id, wrapper_services)
         await spreadsheets_update_value(
             spreadsheet_id, projects, wrapper_services
         )

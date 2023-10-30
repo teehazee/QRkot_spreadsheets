@@ -45,13 +45,13 @@ async def create_new_charity_project(
     new_project = await charity_project_crud.create(
         charity_project,
         session,
-        commit_choke=False
+        do_commit=False
     )
     session.add_all(
         [*investation(
             new_project,
             await donation_crud.get_not_invested(session)
-        ), new_project
+        )
         ]
     )
     await session.commit()

@@ -10,8 +10,6 @@ def investation(
 ) -> List[CharityDonationModel]:
     """Функция инвестирования."""
     results: list = []
-    if not target.invested_amount:
-        target.invested_amount = 0
     for source in sources:
         results.append(source)
         to_invest = min(

@@ -5,16 +5,45 @@ from typing import Any, Dict, List, Tuple
 from aiogoogle import Aiogoogle
 
 from app.core.config import settings
-from app.core.constants import (
-    FORMAT,
-    VERSION_SHEETS,
-    VERSION_DRIVE,
-    ROW_COUNT,
-    COLUMN_COUNT,
-    HEADER,
-    TITLE,
-    SPREADSHEET_BODY,
-    SPREADSHEET_ERROR
+
+
+FORMAT = '%Y/%m/%d %H:%M:%S'
+
+VERSION_SHEETS = 'v4'
+
+VERSION_DRIVE = 'v3'
+
+ROW_COUNT = 100
+
+COLUMN_COUNT = 11
+
+HEADER = [
+    ['Отчёт от', ''],
+    ['Проекты по скорости закрытия'],
+    ['Название проекта', 'Время сбора средств', 'Описание проекта']
+]
+
+TITLE = 'Отчёт приложения QRKot на {}'
+
+SPREADSHEET_BODY = dict(
+    properties=dict(
+        locale='ru_RU',
+    ),
+    sheets=dict(properties=dict(
+        sheetType='GRID',
+        sheetId=0,
+        title='Проекты по скорости закрытия.',
+        gridProperties=dict(
+            rowCount=ROW_COUNT,
+            columnCount=COLUMN_COUNT,
+        )
+    ))
+)
+
+SPREADSHEET_ERROR_MESSAGE = (
+    'Передаваемые значения превышают созданные границы таблицы!'
+    f'Число строк должно быть меньше {ROW_COUNT},'
+    f'Число колонок должно быть меньше {COLUMN_COUNT}.'
 )
 
 
@@ -87,12 +116,11 @@ async def spreadsheets_update_value(
     rows = len(table_values)
     columns = max(map(len, table_values))
     if rows > ROW_COUNT or columns > COLUMN_COUNT:
-        raise ValueError(SPREADSHEET_ERROR.format(
-            rows_create=ROW_COUNT,
-            columns_create=COLUMN_COUNT,
-            rows_limit=rows,
-            columns_limit=columns
-        ))
+        raise ValueError(
+            SPREADSHEET_ERROR_MESSAGE.format(
+                rows=rows, columns=columns
+            )
+        )
 
     await wrapper_services.as_service_account(
         service.spreadsheets.values.update(

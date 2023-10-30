@@ -37,14 +37,15 @@ class CRUDBase:
             obj_in,
             session: AsyncSession,
             user: Optional[User] = None,
-            commit_choke: bool = True,
+            do_commit: bool = True,
     ) -> ModelType:
         obj_in_data = obj_in.dict()
         if user is not None:
             obj_in_data['user_id'] = user.id
+        obj_in_data['invested_amount'] = 0
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
-        if commit_choke:
+        if do_commit:
             await session.commit()
             await session.refresh(db_obj)
         return db_obj

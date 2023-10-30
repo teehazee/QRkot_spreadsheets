@@ -37,7 +37,7 @@ async def create_donation(
         donation,
         session,
         user,
-        commit_choke=False
+        do_commit=False
     )
     session.add_all(
         [*investation(
