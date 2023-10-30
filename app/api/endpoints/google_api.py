@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Dict
 
 from aiogoogle import Aiogoogle
 from fastapi import APIRouter, Depends, HTTPException, status
